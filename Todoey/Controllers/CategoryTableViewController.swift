@@ -50,6 +50,7 @@ class CategoryTableViewController: UITableViewController {
         } catch {
             print("error saving category: \(error)")
         }
+        tableView.reloadData()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -86,6 +87,7 @@ class CategoryTableViewController: UITableViewController {
                     print("error deleting category: \(error)")
                 }
             }
+            tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
     

@@ -55,7 +55,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ItemCell" id="ruC-Ov-2UZ">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="itemCell" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="itemCell" id="ruC-Ov-2UZ">
                                 <rect key="frame" x="0.0" y="24.5" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ruC-Ov-2UZ" id="uwf-bA-afo">
@@ -69,7 +69,13 @@
                             <outlet property="delegate" destination="fUC-70-jAF" id="RKI-BT-veh"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Items" id="HCw-KD-7p2"/>
+                    <navigationItem key="navigationItem" title="Items" id="HCw-KD-7p2">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="27U-N5-FL3">
+                            <connections>
+                                <action selector="addNewItemButtonDidClick:" destination="fUC-70-jAF" id="7gf-BO-Hru"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="auu-5K-McU" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
