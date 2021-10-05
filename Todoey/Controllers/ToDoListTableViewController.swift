@@ -10,6 +10,8 @@ import UIKit
 
 class ToDoListTableViewController: UITableViewController {
 
+    var currentCategory: Category?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 

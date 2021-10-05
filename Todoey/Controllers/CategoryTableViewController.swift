@@ -52,11 +52,41 @@ class CategoryTableViewController: UITableViewController {
         }
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToItems" {
+            let destinationVS = segue.destination as! ToDoListTableViewController
+            if let indexpath = tableView.indexPathForSelectedRow {
+                destinationVS.currentCategory = categories?[indexpath.row]
+            }
+        }
+    }
+    
     
     //MARK: tableview methods
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return categories?.count ?? 1
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "goToItems", sender: self)
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            if let category = categories?[indexPath.row] {
+                do {
+                    try realm.write({
+                        for item in category.items {
+                            realm.delete(item)
+                        }
+                        realm.delete(category)
+                    })
+                } catch {
+                    print("error deleting category: \(error)")
+                }
+            }
+        }
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
