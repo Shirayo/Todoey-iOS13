@@ -11,6 +11,7 @@ import RealmSwift
 
 class ToDoListTableViewController: UITableViewController {
 
+    @IBOutlet weak var searchBar: UISearchBar!
     var currentCategory: Category? {
         didSet {
             loadItems()
@@ -21,7 +22,8 @@ class ToDoListTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
- 
+        searchBar.delegate = self
+        searchBar.showsCancelButton = true
        
     }
     
@@ -121,4 +123,33 @@ class ToDoListTableViewController: UITableViewController {
         return cell
     }
 
+}
+
+extension ToDoListTableViewController: UISearchBarDelegate {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        loadItems()
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        loadItems()
+        print("heh1")
+
+        guard searchBar.text?.count != 0 else {return}
+        print("heh2")
+
+        let filterPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        items = items?.filter(filterPredicate).sorted(byKeyPath: "date", ascending: false)
+        tableView.reloadData()
+        
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+
+        DispatchQueue.main.async {
+            searchBar.resignFirstResponder()
+        }
+    }
+    
 }
