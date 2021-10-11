@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class CategoryTableViewController: SwipeCellTableViewController {
     
@@ -18,14 +19,29 @@ class CategoryTableViewController: SwipeCellTableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
-        tableView.rowHeight = 70
+        
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let navbar = navigationController?.navigationBar {
+            print("heh momento")
+            let barAppearance = UINavigationBarAppearance()
+              barAppearance.backgroundColor = .systemTeal
+                navbar.tintColor = ContrastColorOf(navbar.barTintColor!, returnFlat: true)
+              navigationItem.standardAppearance = barAppearance
+              navigationItem.scrollEdgeAppearance = barAppearance
+        }
+
+    }
+    
+    
     
     func loadCategories() {
         categories = realm.objects(Category.self)
         tableView.reloadData()
     }
     
+    //MARK: -add category
     
     @IBAction func addCategoryButtonDidClick(_ sender: UIBarButtonItem) {
         var enteredText = UITextField()
@@ -35,6 +51,7 @@ class CategoryTableViewController: SwipeCellTableViewController {
         }
         let action = UIAlertAction(title: "add", style: .default) { UIAlertAction in
             let newCategory = Category()
+            newCategory.color = UIColor.randomFlat().hexValue()
             newCategory.name = enteredText.text!
             self.save(category: newCategory)
         }
@@ -87,12 +104,15 @@ class CategoryTableViewController: SwipeCellTableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: self)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
-    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-        cell.textLabel?.text = categories?[indexPath.row].name ?? "no categories created yet"
+        if let category = categories?[indexPath.row] {
+            cell.backgroundColor = UIColor(hexString: (category.color))
+            cell.textLabel?.text = categories?[indexPath.row].name ?? "no categories created yet"
+        }
         return cell
     }
     

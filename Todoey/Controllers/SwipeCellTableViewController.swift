@@ -14,7 +14,7 @@ class SwipeCellTableViewController: UITableViewController, SwipeTableViewCellDel
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        tableView.rowHeight = 80
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -29,7 +29,7 @@ class SwipeCellTableViewController: UITableViewController, SwipeTableViewCellDel
     
     func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
         var options = SwipeTableOptions()
-        options.expansionStyle = .destructive
+        options.expansionStyle = .destructiveAfterFill
         return options
     }
     

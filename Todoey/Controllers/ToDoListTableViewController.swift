@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class ToDoListTableViewController: UITableViewController {
+class ToDoListTableViewController: SwipeCellTableViewController {
 
     @IBOutlet weak var searchBar: UISearchBar!
     var currentCategory: Category? {
@@ -22,9 +23,22 @@ class ToDoListTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationController?.navigationBar.barTintColor = .blue
         searchBar.delegate = self
         searchBar.showsCancelButton = true
-       
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let hexColor = currentCategory?.color {
+            guard let color = UIColor(hexString: hexColor) else {fatalError()}
+            title = currentCategory?.name
+            searchBar.barTintColor = color
+            searchBar.searchTextField.backgroundColor = .white
+            let barAppearance = UINavigationBarAppearance()
+            barAppearance.backgroundColor = color
+            navigationItem.standardAppearance = barAppearance
+            navigationItem.scrollEdgeAppearance = barAppearance
+        }
     }
     
     func loadItems() {
@@ -46,6 +60,19 @@ class ToDoListTableViewController: UITableViewController {
         }
         tableView.reloadData()
     }
+    
+    override func updateModel(at indexPath: IndexPath) {
+        if let item = items?[indexPath.row] {
+            do {
+                try realm.write({
+                    realm.delete(item)
+                })
+            } catch {
+                print("error deleting category: \(error)")
+            }
+        }
+    }
+    
     //MARK: - create new item
     
     
@@ -64,7 +91,6 @@ class ToDoListTableViewController: UITableViewController {
                     newItem.title = enteredText.text!
                     currentCategory.items.append(newItem)
                 })
-                
             } catch {
                 
             }
@@ -97,25 +123,31 @@ class ToDoListTableViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            
-            do {
-                try realm.write({
-                    realm.delete(items![indexPath.row])
-                })
-            } catch {
-                print("error deleting item \(error)")
-            }
-        }
-        tableView.deleteRows(at: [indexPath], with: .fade)
-    }
+//    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        if editingStyle == .delete {
+//            
+//            do {
+//                try realm.write({
+//                    realm.delete(items![indexPath.row])
+//                })
+//            } catch {
+//                print("error deleting item \(error)")
+//            }
+//        }
+//        tableView.deleteRows(at: [indexPath], with: .fade)
+//    }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "itemCell", for: indexPath)
+        
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         if let item = items?[indexPath.row] {
             cell.textLabel?.text = item.title
             cell.accessoryType = item.isDone ? .checkmark: .none
+            if let color = UIColor(hexString: currentCategory!.color)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(items!.count)) {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+            }
+           
         } else {
             cell.textLabel?.text = "no items created yet"
         }
