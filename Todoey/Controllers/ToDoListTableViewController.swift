@@ -134,11 +134,7 @@ extension ToDoListTableViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         loadItems()
-        print("heh1")
-
         guard searchBar.text?.count != 0 else {return}
-        print("heh2")
-
         let filterPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         items = items?.filter(filterPredicate).sorted(byKeyPath: "date", ascending: false)
         tableView.reloadData()

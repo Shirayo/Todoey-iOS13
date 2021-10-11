@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class CategoryTableViewController: UITableViewController {
+class CategoryTableViewController: SwipeCellTableViewController {
     
     var categories: Results<Category>?
     let realm = try! Realm()
@@ -18,6 +18,7 @@ class CategoryTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
+        tableView.rowHeight = 70
     }
     
     func loadCategories() {
@@ -62,6 +63,21 @@ class CategoryTableViewController: UITableViewController {
         }
     }
     
+    override func updateModel(at indexPath: IndexPath) {
+        if let category = categories?[indexPath.row] {
+            do {
+                try realm.write({
+                    for item in category.items {
+                        realm.delete(item)
+                    }
+                    realm.delete(category)
+                })
+            } catch {
+                print("error deleting category: \(error)")
+            }
+        }
+        
+    }
     
     //MARK: tableview methods
     
@@ -73,28 +89,12 @@ class CategoryTableViewController: UITableViewController {
         performSegue(withIdentifier: "goToItems", sender: self)
     }
     
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            if let category = categories?[indexPath.row] {
-                do {
-                    try realm.write({
-                        for item in category.items {
-                            realm.delete(item)
-                        }
-                        realm.delete(category)
-                    })
-                } catch {
-                    print("error deleting category: \(error)")
-                }
-            }
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        }
-    }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "no categories created yet"
         return cell
     }
+    
 }
 
