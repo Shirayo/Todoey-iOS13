@@ -23,18 +23,21 @@ class CategoryTableViewController: SwipeCellTableViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if let navbar = navigationController?.navigationBar {
-            print("heh momento")
-            let barAppearance = UINavigationBarAppearance()
-              barAppearance.backgroundColor = .systemTeal
-                navbar.tintColor = ContrastColorOf(navbar.barTintColor!, returnFlat: true)
-              navigationItem.standardAppearance = barAppearance
-              navigationItem.scrollEdgeAppearance = barAppearance
-        }
-
+        styleNavBar()
     }
     
-    
+    func styleNavBar() {
+        if let navbar = navigationController?.navigationBar {
+            let barAppearance = UINavigationBarAppearance()
+            let navBarColor = UIColor.flatRed()
+            barAppearance.backgroundColor = navBarColor
+            barAppearance.titleTextAttributes = [.foregroundColor: ContrastColorOf(navBarColor, returnFlat: true)]
+            barAppearance.largeTitleTextAttributes = [.foregroundColor: ContrastColorOf(navBarColor, returnFlat: true)]
+            navigationItem.standardAppearance = barAppearance
+            navigationItem.scrollEdgeAppearance = barAppearance
+            navbar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+        }
+    }
     
     func loadCategories() {
         categories = realm.objects(Category.self)
@@ -59,6 +62,7 @@ class CategoryTableViewController: SwipeCellTableViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    //MARK: - data manipulation functions
     
     func save(category: Category) {
         do {
@@ -69,15 +73,6 @@ class CategoryTableViewController: SwipeCellTableViewController {
             print("error saving category: \(error)")
         }
         tableView.reloadData()
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToItems" {
-            let destinationVS = segue.destination as! ToDoListTableViewController
-            if let indexpath = tableView.indexPathForSelectedRow {
-                destinationVS.currentCategory = categories?[indexpath.row]
-            }
-        }
     }
     
     override func updateModel(at indexPath: IndexPath) {
@@ -96,7 +91,18 @@ class CategoryTableViewController: SwipeCellTableViewController {
         
     }
     
-    //MARK: tableview methods
+    //MARK: - prepare method
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToItems" {
+            let destinationVS = segue.destination as! ToDoListTableViewController
+            if let indexpath = tableView.indexPathForSelectedRow {
+                destinationVS.currentCategory = categories?[indexpath.row]
+            }
+        }
+    }
+    
+    //MARK: - tableview methods
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return categories?.count ?? 1

@@ -9,6 +9,7 @@
 import UIKit
 import RealmSwift
 import ChameleonFramework
+import SwiftUI
 
 class ToDoListTableViewController: SwipeCellTableViewController {
 
@@ -25,21 +26,31 @@ class ToDoListTableViewController: SwipeCellTableViewController {
         super.viewDidLoad()
         self.navigationController?.navigationBar.barTintColor = .blue
         searchBar.delegate = self
-        searchBar.showsCancelButton = true
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        setAppearance()
+    }
+    
+    func setAppearance() {
         if let hexColor = currentCategory?.color {
             guard let color = UIColor(hexString: hexColor) else {fatalError()}
+            guard let navBar = navigationController?.navigationBar else { return }
             title = currentCategory?.name
             searchBar.barTintColor = color
             searchBar.searchTextField.backgroundColor = .white
+            navBar.tintColor = ContrastColorOf(color, returnFlat: true)
             let barAppearance = UINavigationBarAppearance()
             barAppearance.backgroundColor = color
+            barAppearance.largeTitleTextAttributes = [.foregroundColor: ContrastColorOf(color, returnFlat: true)]
+            barAppearance.titleTextAttributes = [.foregroundColor: ContrastColorOf(color, returnFlat: true)]
             navigationItem.standardAppearance = barAppearance
             navigationItem.scrollEdgeAppearance = barAppearance
         }
     }
+    
+    //MARK: - data manipulation functions
     
     func loadItems() {
         if let selectedCategory = currentCategory {
@@ -75,7 +86,6 @@ class ToDoListTableViewController: SwipeCellTableViewController {
     
     //MARK: - create new item
     
-    
     @IBAction func addNewItemButtonDidClick(_ sender: UIBarButtonItem) {
         var enteredText = UITextField()
         let alert = UIAlertController(title: nil, message: "Add new item", preferredStyle: .alert)
@@ -102,7 +112,6 @@ class ToDoListTableViewController: SwipeCellTableViewController {
         
     }
     
-
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -123,20 +132,6 @@ class ToDoListTableViewController: SwipeCellTableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-//    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            
-//            do {
-//                try realm.write({
-//                    realm.delete(items![indexPath.row])
-//                })
-//            } catch {
-//                print("error deleting item \(error)")
-//            }
-//        }
-//        tableView.deleteRows(at: [indexPath], with: .fade)
-//    }
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
@@ -145,6 +140,7 @@ class ToDoListTableViewController: SwipeCellTableViewController {
             cell.accessoryType = item.isDone ? .checkmark: .none
             if let color = UIColor(hexString: currentCategory!.color)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(items!.count)) {
                 cell.backgroundColor = color
+                cell.tintColor = ContrastColorOf(color, returnFlat: true)
                 cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
             }
            
@@ -157,12 +153,14 @@ class ToDoListTableViewController: SwipeCellTableViewController {
 
 }
 
+//MARK: -extensions
+
 extension ToDoListTableViewController: UISearchBarDelegate {
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = ""
-        loadItems()
-        searchBar.resignFirstResponder()
-    }
+//    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+//        searchBar.text = ""
+//        loadItems()
+//        searchBar.resignFirstResponder()
+//    }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         loadItems()
